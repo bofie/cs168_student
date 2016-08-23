@@ -8,7 +8,7 @@ This assignment (and the rest of the assignments in this class) should be implem
 
 - This project is due on Friday 9/9 at 11:59pm
 - This project should be completed individually (refer to the [course website](https://netsys.github.io/cs168fa16/about.html) for collaboration policies)
-- The skeleton code for this project is available from [this Github repo](https://github.com/NetSys/cs168_student/projects/proj1_chat)
+- The skeleton code for this project is available from [here](https://github.com/NetSys/cs168_student/blob/master/projects/proj1_chat). You can download the code manually from that page, or use git.
 
 
 #### Resources
