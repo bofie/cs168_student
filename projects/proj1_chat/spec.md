@@ -9,14 +9,16 @@ This assignment (and the rest of the assignments in this class) should be implem
 - This project is due on Friday 9/9 at 11:59pm
 - This project should be completed individually (refer to the [course website](https://netsys.github.io/cs168fa16/about.html) for collaboration policies)
 - The skeleton code for this project is available from [here](https://github.com/NetSys/cs168_student/blob/master/projects/proj1_chat). You can download the code manually from that page, or use git.
-
+- You'll submit your code using `ok`. You should submit two files: one named `client.py` and one named `server.py`. You should not modify or submit `utils.py`. More detailed submission instructions can be found at the bottom of the spec (above the FAQ).
 
 #### Resources
 
 - There's a demo of the finished project available [here](https://youtu.be/4btZs--wlpI).
 - If you have questions, first take a look at the [FAQ section](#faq).  If your question isn't answered there, post to Piazza.
 - The [Python Socket Programming HOWTO](https://docs.python.org/2/howto/sockets.html) is a useful introduction to socket programming.
-
+- We've provided two files to help you test your code:
+  - `client_split_messages.py` is intended to help you ensure your server is correctly buffering messages, and is described in more detail below.
+  - `simple_test.py` tests a basic scenario where two clients communicate in a simple channel.  `simple_test.py` represents only a small fraction of the points that we'll test for when we grade your assignment, and is intended only to help you verify the basic format of your client's output.
 
 ## What are sockets?
 
@@ -112,7 +114,7 @@ When clients disconnect, a message should be broadcasted to all members of the c
 
 Sockets provide a data stream functionality, but they don't delineate different messages.  When a given `recv` call returns some data, the socket won't tell you whether the data returned is a single message, or multiple messages, or part of one message.  As a result, you'll need a way to determine when a message ends.  For this assignment, use fixed length messages that have 200 characters for all messages (including messages from the server to the client). If a message is shorter than 200 characters, you should pad the message with spaces (and the receiver should strip any spaces off of the end of the message). You can assume that no messages are longer than 200 characters.
 
-Be sure that your code correctly handles the case where less than one message is available in the socket's buffer (so a `recv` call returns fewer than 200 characteres of data) and the case where more than one message is available in the socket's buffer (so a `recv` call could return more than 200 characters).  To help you check for your server's handling of these cases, we've provided a special client (`client_split_messages.py`) that splits messages into many smaller messages before sending them to the server.  You'll likely want to modify this client to test for additional cases.
+Be sure that your code correctly handles the case where less than one message is available in the socket's buffer (so a `recv` call returns fewer than 200 characters of data) and the case where more than one message is available in the socket's buffer.  You should handle partial messages by buffering: if a `recv` call returns only part of a message, your code should hold on to the part of the message until the remainder of the mesage is received, and then handle the complete message.  For example, if a client receives 150 characters from the server, it should hold those 150 characters until 50 more characters are received.  The client should only write the message to stdout once all 200 characters have been received.  To help you check for your server's handling of these cases, we've provided a special client (`client_split_messages.py`) that splits messages into many smaller messages before sending them to the server.  This client only tests some of the scenarios your server should handle!  You'll likely want to modify this client to test for additional casess.
 
 #### Error Handling
 
@@ -170,7 +172,19 @@ We've provided a `utils.py` file that has error messages that you should use.  T
 
 ### Non-blocking sockets
 
-You'll need to use non-blocking sockets for this part of the assignment, because unlike in part 0, you don't know what to block on.  For example, the client could block on reading data from the socket connected to the server, but then would miss data sent to stdin in the meantime.  To use non-blocking sockets, you'll need to use the `select` call in the `select` library.  For more about how to use `select` and a very relevant example, take a look at [this page](http://www.bogotobogo.com/python/python_network_programming_tcp_server_client_chat_server_chat_client_select.php).  While you are required to use non-blocking sockets for reading data and accepting connections, it's fine to use blocking sockets for sending messages (since the messages you're sending are short, so `send` and `sendall` should not block for long periods of time).
+You'll need to use non-blocking sockets for this part of the assignment, because both your client and server need to receive data from multiple sources, in an unknown order.  Consider what would happen if your client used blocking sockets, as in part 0, with a call like:
+
+    message_from_server = client_socket.recv(200)
+    
+Now suppose that the server doesn't send any messages for a while, but while the client is blocked waiting on the `recv` call to return, the user types some data into stdin.  The client should read the data from stdin and send it to the server -- but the client is stuck blocked waiting on data from the server socket!  To address this problem, you can use non-blocking sockets.
+
+To use non-blocking sockets, you'll need to use the `select` call in the `select` library.  For more about how to use `select` and a very relevant example, take a look at [this page](http://www.bogotobogo.com/python/python_network_programming_tcp_server_client_chat_server_chat_client_select.php).  While you are required to use non-blocking sockets for reading data and accepting connections, it's fine to use blocking sockets for sending messages (since the messages you're sending are short and you don't need to handle sending a large number of messages in quick succession, `send` and `sendall` should not block for long periods of time).
+
+## Submission Details
+
+You will be submitting your project on [okpy](http://okpy.org). When you visit the webpage, sign in using your Berkeley email. You should already be automatically registered as a student in the course. If this is not the case or you encounter any issues, please fill out this [form](https://docs.google.com/a/berkeley.edu/forms/d/e/1FAIpQLScA8gyPc1C0bNCAqWyKWWZRANuXBP2yslFeddtrwtvI6pyIjA/viewform).
+
+You can then upload your project files into the "Project 1" assignment by selecting the assignment and then selecting to create a new submission. You will not be receiving any feedback from the autograder until the project is over, but you can submit as many times as you want. By default, your most recent submission will be graded. If you don't want this behavior, you can select to have a previous one graded instead.
 
 ## FAQ
 
@@ -243,6 +257,10 @@ No. It's fine if your server code is inside of a `while True:` loop, like the se
 ##### Should the client quit if the server disconnects?
 
 Yes.  The client should quit and print the appropriate error message from `utils.py`.
+
+##### How will our code be tested?
+
+We'll do end-to-end tests using your client and server together, and we'll also do tests where we use our own client to interact with your server (and vice versa).  As a result, you should make sure that your client and server communicate as described in this document.
 
 ### Acknowledgments
 
