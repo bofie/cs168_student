@@ -1,6 +1,6 @@
 # Chat
 
-In this assignment, you'll build a simple application that connects users over a network: a chat server.  Similar to chat programs like [Slack](www.slack.com) and [IRC](https://tools.ietf.org/html/rfc1459), your finished chat server will allow users to converse in different channels.  Users can create and join channels; once a user is in a particular channel, all messages that she sends will be relayed to all other users in that channel.
+In this assignment, you'll build a simple application that connects users over a network: a chat server.  Similar to chat programs like [Slack](https://www.slack.com) and [IRC](https://tools.ietf.org/html/rfc1459), your finished chat server will allow users to converse in different channels.  Users can create and join channels; once a user is in a particular channel, all messages that she sends will be relayed to all other users in that channel.
 
 This assignment (and the rest of the assignments in this class) should be implemented in Python. This assignment will introduce you to the socket programming API.
 
