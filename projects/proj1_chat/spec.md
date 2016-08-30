@@ -1,6 +1,6 @@
 # Chat
 
-In this assignment, you'll build a simple application that connects users over a network: a chat server.  Similar to chat programs like [Slack](www.slack.com) and [IRC](https://tools.ietf.org/html/rfc1459), your finished chat server will allow users to converse in different channels.  Users choose can create and join channels; once a user is in a particular channel, all messages that she sends will be relayed to all other users in that channel.
+In this assignment, you'll build a simple application that connects users over a network: a chat server.  Similar to chat programs like [Slack](www.slack.com) and [IRC](https://tools.ietf.org/html/rfc1459), your finished chat server will allow users to converse in different channels.  Users can create and join channels; once a user is in a particular channel, all messages that she sends will be relayed to all other users in that channel.
 
 This assignment (and the rest of the assignments in this class) should be implemented in Python. This assignment will introduce you to the socket programming API.
 
@@ -44,11 +44,11 @@ After creating the socket, rather than connecting to a particular remote destina
 
     (new_socket, address) = server_socket.accept()
     
-This call blocks until a client connects (using a `connect()` call, as in the example above), and then returns newly created `new_socket` can be used to send and receive data to and from the client.  For example, the call
+This call blocks until a client connects (using a `connect()` call, as in the example above), and then returns a newly created socket, `new_socket`, that can be used to send and receive data to and from the client.  For example, the call
 
     message = new_socket.recv(1024)
     
-will block until there is data to receive from the client, and will return up to 1024 bytes of data.  The newly created `new_socket` will use a different port than the original server port.
+will block until there is data to receive from the client, and will return up to 1024 bytes of data.
 
 You'll need to do some reading to understand how all of these API calls work.  __In particular, be careful when using `send` and `recv`! `send`, for example, will not necessarily send all of the data passed into it.__  The [Python Socket Programming HOWTO](https://docs.python.org/2/howto/sockets.html) will likely be a useful resource.
 
@@ -62,7 +62,7 @@ The server should accept one command line argument, stating the port that the se
 
     $ python basic_server.py 12345
     
-The client should accept two command line arguments, one describing the server to connect to, and a second describing the server port:
+The client should accept two command line arguments: the hostname (or IP address) of the server to connect to, and the server port:
 
     $ python basic_client.py localhost 12345
     
@@ -72,7 +72,7 @@ Your server should be reachable from any IP address associated with the machine 
 
 In this part of the assignment, it's fine to use blocking sockets.  "Blocking" means that a socket call may not return for a while, until the call completes.  Cases when socket calls won't complete immediately include:
 
-- `send`: if the socket's internal buffer is full so not data can be written
+- `send`: if the socket's internal buffer is full so no data can be written
 - `recv`: if the internal buffer is empty, so there's no data to read (e.g., if the client has paused sending)
 - `accept`: if these are no clients currently trying to connect
 
@@ -83,13 +83,13 @@ Here's an example of how your client and server should work.  Suppose two differ
     $ python basic_client.py localhost 12345
     I am a student in CS168. This class is awesome!
     $ python basic_client.py localhost 12345
-    Can you believe that attendance is required at lecture?!
+    Why is Shenker so bad at drawing?
     
 If a server had been started on port 12345 before the client was run, it should have printed output as follows:
 
     $ python basic_server.py 12345
     I am a student in CS168. This class is awesome!
-    Can you believe that attendance is required at lecture?!
+    Why is Shenker so bad at drawing?
  
 
 ## Part 1
@@ -100,9 +100,9 @@ In the remainder of the assignment, you'll build on your basic client and server
 
 The server should accept a single command line argument that's the port that the server should run on.
 
-Unlike your server in part 0, your server in this part of the assignment must allow many clients to be connected and sending messages concurrently.  Each client should have an associated name (sent with messages from the client, so that other connected clients know who each message is from) and channel that they're currently subscribed to.  When a client first connects, it won't have an associated name and channel.  The first message that the server receives from the client should be used as the client's name.
+Unlike your server in part 0, your server in this part of the assignment must allow many clients to be connected and sending messages concurrently.  Each client should have an associated name (so that other connected clients know who each message is from) and channel that they're currently subscribed to.  When a client first connects, it won't have an associated name and channel.  The first message that the server receives from the client should be used as the client's name.
 
-Future messages from the client to the server can take one of two formats.  The first type of message is a control message; control messages always begin with "/".  There are three different control messages your server should handle from clients:
+Future messages from the client to the server can take one of two forms.  The first type of message is a control message; control messages always begin with "/".  There are three different control messages your server should handle from clients:
 
 - `/join <channel>` should add the client to the given channel.  Clients can only be in one channel at a time, so if the client is already in a channel, this command should remove the client from that channel. When a client is added to a channel, a message should be broadcasted to all existing members of the channel stating that the client has joined.  Similarly, if the client left a channel, a message should be broadcasted stating that the client left.
 - `/create <channel>` should create a new channel with the given name, and add the client to the given channel.  As with the `/join` call, the client should be removed from any existing channels.
@@ -110,7 +110,7 @@ Future messages from the client to the server can take one of two formats.  The 
 
 The second type of message is normal messages to the client's current channel.  All messages that are not preceeded by a `/` are considered normal messages.  These messages should be broadcasted to all other clients in the channel, preceeded by the client's name in brackets (see the example below).  Messages should _not_ be sent to client in different channels.  If the client is not currently in a channel, the server should send an error message back to the client.
 
-When clients disconnect, a message should be broadcasted to all members of the clients' channel saying that the client disconnected.
+When a client disconnects, a message should be broadcasted to all members of the client's channel saying that the client disconnected.
 
 Sockets provide a data stream functionality, but they don't delineate different messages.  When a given `recv` call returns some data, the socket won't tell you whether the data returned is a single message, or multiple messages, or part of one message.  As a result, you'll need a way to determine when a message ends.  For this assignment, use fixed length messages that have 200 characters for all messages (including messages from the server to the client). If a message is shorter than 200 characters, you should pad the message with spaces (and the receiver should strip any spaces off of the end of the message). You can assume that no messages are longer than 200 characters.
 
@@ -120,13 +120,11 @@ Be sure that your code correctly handles the case where less than one message is
 
 Your server should handle cases where the client sends an invalid message by returning an appropriate error message to the client.  For example, if a client uses the `/join` command but doesn't provide the name of a channel to join, the server should send back an error message.  The provided `utils.py` includes format strings for all of the errors you should handle.  You can use these format strings using Python's string formatting operations.  For example, `utils.py` defines the following error message:
 
-    CLIENT_SERVER_DISCONNECTED = "Server at {}:{} has disconnected"
+    CLIENT_SERVER_DISCONNECTED = "Server at {0}:{1} has disconnected"
     
 You can use the `.format` function to replace the brackets with strings as follows:
 
     error_message = CLIENT_SERVER_DISCONNECTED.format("localhost", 12345)
-    
-Note that you must be using Python 2.7 or above for the string formatting functionality to work.
 
 __You are required to use the error messages defined in `utils.py`.  If you do not use these error messages (with appropriate formatting), you will not get credit for error handling.__
 
