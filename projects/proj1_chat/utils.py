@@ -3,10 +3,10 @@ MESSAGE_LENGTH = 200
 #### Client messages ####
 
 # Message printed when a client can't connect to the server host and port that were passed in.
-CLIENT_CANNOT_CONNECT = "Unable to connect to {}:{}"
+CLIENT_CANNOT_CONNECT = "Unable to connect to {0}:{1}"
 
 # Message printed before exiting, if the server disconnected.
-CLIENT_SERVER_DISCONNECTED = "Server at {}:{} has disconnected"
+CLIENT_SERVER_DISCONNECTED = "Server at {0}:{1} has disconnected"
 
 # Printed at the beginning of new lines in the client.
 CLIENT_MESSAGE_PREFIX = "[Me] "
@@ -32,13 +32,13 @@ SERVER_NO_CHANNEL_EXISTS = "No channel named {0} exists. Try '/create {0}'?"
 SERVER_JOIN_REQUIRES_ARGUMENT = "/join command must be followed by the name of a channel to join."
 
 # Message sent to all clients in a channel when a new client joins.
-SERVER_CLIENT_JOINED_CHANNEL = "{} has joined"
+SERVER_CLIENT_JOINED_CHANNEL = "{0} has joined"
 
 # Message sent to all clients in a channel when a client leaves.
-SERVER_CLIENT_LEFT_CHANNEL = "{} has left"
+SERVER_CLIENT_LEFT_CHANNEL = "{0} has left"
 
 # Message sent to a client that tries to create a channel that doesn't exist.
-SERVER_CHANNEL_EXISTS = "Room {} already exists, so cannot be created."
+SERVER_CHANNEL_EXISTS = "Room {0} already exists, so cannot be created."
 
 # Message sent to a client that uses the "/create" command without a channel name.
 SERVER_CREATE_REQUIRES_ARGUMENT = \

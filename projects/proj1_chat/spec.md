@@ -9,7 +9,7 @@ This assignment (and the rest of the assignments in this class) should be implem
 - This project is due on Friday 9/9 at 11:59pm
 - This project should be completed individually (refer to the [course website](https://netsys.github.io/cs168fa16/about.html) for collaboration policies)
 - The skeleton code for this project is available from [here](https://github.com/NetSys/cs168_student/blob/master/projects/proj1_chat). You can download the code manually from that page, or use git.
-- You'll submit your code using `ok`. You should submit two files: one named `client.py` and one named `server.py`. You should not modify or submit `utils.py`. More detailed submission instructions can be found at the bottom of the spec (above the FAQ).
+- You'll submit your code using `ok`. You should submit two files: one named `client.py` and one named `server.py`. You should not modify or submit `utils.py`. More detailed submission instructions can be found in the [submission details](#submission-details) section.
 
 #### Resources
 
