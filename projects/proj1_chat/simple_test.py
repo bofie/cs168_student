@@ -58,6 +58,9 @@ class SimpleTest():
 
     def test_two_clients(self):
         self.alice_client.stdin.write("/create tas\n")
+        # Sleep to make sure that the message from Alice, to create the tas channel,
+        # arrives at the server before Kay's message to join the channel.
+        time.sleep(SLEEP_SECONDS)
         self.kay_client.stdin.write("/join tas\n")
         # Alice should get a message that Kay joined.
         self.check_for_output(self.alice_client, "Kay has joined")
