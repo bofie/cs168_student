@@ -180,7 +180,7 @@ To use non-blocking sockets, you'll need to use the `select` call in the `select
 
 ## Submission Details
 
-You will be submitting your project on [okpy](http://okpy.org). When you visit the webpage, sign in using your Berkeley email. You should already be automatically registered as a student in the course. If this is not the case or you encounter any issues, please fill out this [form](https://docs.google.com/a/berkeley.edu/forms/d/e/1FAIpQLScA8gyPc1C0bNCAqWyKWWZRANuXBP2yslFeddtrwtvI6pyIjA/viewform).
+You will be submitting your project on [okpy](http://okpy.org). When you visit the webpage, sign in using your preferred email from bCourses (Unless you have changed it, this should default to your Berkeley email). You should already be automatically registered as a student in the course. If this is not the case or you encounter any issues, please fill out this [form](https://docs.google.com/a/berkeley.edu/forms/d/e/1FAIpQLScA8gyPc1C0bNCAqWyKWWZRANuXBP2yslFeddtrwtvI6pyIjA/viewform).
 
 You can then upload your project files into the "Project 1" assignment by selecting the assignment and then selecting to create a new submission. You will not be receiving any feedback from the autograder until the project is over, but you can submit as many times as you want. By default, your most recent submission will be graded. If you don't want this behavior, you can select to have a previous one graded instead.
 
