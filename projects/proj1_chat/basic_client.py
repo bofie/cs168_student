@@ -19,3 +19,4 @@ if len(args) != 3:
 client = BasicClient(args[1], args[2])
 msg = raw_input()
 client.send(msg)
+
