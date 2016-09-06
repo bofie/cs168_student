@@ -2,9 +2,11 @@ import sys
 import utils
 import socket
 import select
+from client_split_messages import pad_message
 
 SOCKET_LIST = []
 RECV_BUFFER = 4096 
+channels = {}
 
 def chat_server():
     host = "localhost"
@@ -17,8 +19,8 @@ def chat_server():
     # add server socket object to the list of readable connections
     SOCKET_LIST.append(server_socket)
  
-    channels = {}
     sock_name = {}
+    partial_message = ""
     while 1:
 
         # get the list sockets which are ready to be read through select
@@ -30,15 +32,33 @@ def chat_server():
             if sock == server_socket: 
                 sockfd, addr = server_socket.accept()
                 SOCKET_LIST.append(sockfd)
-             
+                first_message = True
             # a message from a client, not a new connection
             else:
-                # process data recieved from client, 
+                channelrn = None
+                for channel in channels:
+                    if sock in channels[channel]:
+                        channelrn = channel
                 try:
-                    # receiving data from the socket.
                     data = sock.recv(RECV_BUFFER)
                     if data:
+                        # print "received data length: " + str(len(data))
+                        # print "partial m length: " + str(len(partial_message))
+                        # print "received data: " + str(len(data)) + data
+                        # print "partial m : " + str(len(partial_message)) +  partial_message
+                        combined = partial_message + data
+                        if len(combined) < utils.MESSAGE_LENGTH:
+                            partial_message = combined
+                            continue
+                        if len(partial_message) < utils.MESSAGE_LENGTH and len(combined) >= utils.MESSAGE_LENGTH:
+                            partial_message = (combined)[utils.MESSAGE_LENGTH:]
+                            data = (combined)[:utils.MESSAGE_LENGTH]
+                        data = data.rstrip()
                         args = data.split()
+                        if first_message:
+                            sock_name[sock] = args[0]
+                            first_message = False
+                            continue
                         if args[0] == '/list':
                             for channel in channels:
                                 sock.send(channel + "\n")
@@ -51,6 +71,10 @@ def chat_server():
                                 sock.send(utils.SERVER_CHANNEL_EXISTS.format(args[1]) + "\n")
                                 continue
                             channels[args[1]] = []
+                            for channel in channels:
+                                if sock in channels[channel]:
+                                    channels[channel].remove(sock)
+                            channels[args[1]].append(sock)
                             continue
                         if args[0] == '/join':
                             if len(args) == 1:
@@ -59,11 +83,12 @@ def chat_server():
                             if args[1] not in channels:
                                 sock.send(utils.SERVER_NO_CHANNEL_EXISTS.format(args[1]) + "\n")
                                 continue
-                            broadcast(server_socket, sock, SERVER_CLIENT_JOINED_CHANNEL.format(sock_name[sock])) 
                             for channel in channels:
                                 if sock in channels[channel]:
                                     channels[channel].remove(sock)
                             channels[args[1]].append(sock)
+                            broadcast(server_socket, sock, args[1], utils.SERVER_CLIENT_JOINED_CHANNEL.format(sock_name[sock]) + "\n")
+                            continue
                         if args[0][0] == '/':
                             sock.send(utils.SERVER_INVALID_CONTROL_MESSAGE.format(args[0]) + "\n")
                             continue
@@ -77,25 +102,26 @@ def chat_server():
 
 
                         # there is something in the socket
-                        broadcast(server_socket, sock, "\r" + '[' + str(sock.getpeername()) + '] ' + data)  
+                        broadcast(server_socket, sock, channelrn, "\r" + '[' + sock_name[sock] + '] ' + data)  
                     else:
                         # remove the socket that's broken    
                         if sock in SOCKET_LIST:
                             SOCKET_LIST.remove(sock)
-
                         # at this stage, no data means probably the connection has been broken
-                        broadcast(server_socket, sock, SERVER_CLIENT_LEFT_CHANNEL.format(sock_name[sock])) 
+                        broadcast(server_socket, sock, channelrn, utils.SERVER_CLIENT_LEFT_CHANNEL.format(sock_name[sock]) + "\n") 
 
                 # exception 
                 except:
-                    broadcast(server_socket, sock, "Client (%s, %s) is offline\n" % addr)
+                    broadcast(server_socket, sock, channelrn, utils.SERVER_CLIENT_LEFT_CHANNEL.format(sock_name[sock]) + "\n") 
                     continue
 
     server_socket.close()
     
 # broadcast chat messages to all connected clients
-def broadcast (server_socket, sock, message):
-    for socket in SOCKET_LIST:
+def broadcast (server_socket, sock, channel, message):
+    if channel is None:
+        return
+    for socket in channels[channel]:
         # send the message only to peer
         if socket != server_socket and socket != sock :
             try :
@@ -106,6 +132,7 @@ def broadcast (server_socket, sock, message):
                 # broken socket, remove it
                 if socket in SOCKET_LIST:
                     SOCKET_LIST.remove(socket)
+                    channels[channel].remove(socket)
  
 if __name__ == "__main__":
 

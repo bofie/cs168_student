@@ -2,6 +2,7 @@ import sys
 import socket
 import select
 import utils
+from client_split_messages import pad_message
  
 def chat_client():
     if(len(sys.argv) < 4) :
@@ -15,7 +16,6 @@ def chat_client():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(2)
      
-    # connect to remote host
     try :
         s.connect((host, port))
     except :
@@ -23,7 +23,7 @@ def chat_client():
         sys.exit()
      
     sys.stdout.write(utils.CLIENT_MESSAGE_PREFIX); sys.stdout.flush()
-     
+    s.send(pad_message(name))
     while 1:
         socket_list = [sys.stdin, s]
          
@@ -32,21 +32,18 @@ def chat_client():
          
         for sock in ready_to_read:             
             if sock == s:
-                # incoming message from remote server, s
                 data = sock.recv(4096)
                 if not data :
                     print "\n" + utils.CLIENT_SERVER_DISCONNECTED.format(host, port)
                     sys.exit()
                 else :
-                    #print data
                     sys.stdout.write(utils.CLIENT_WIPE_ME)
                     sys.stdout.write("\r" + data)
                     sys.stdout.write(utils.CLIENT_MESSAGE_PREFIX); sys.stdout.flush()      
             
             else :
-                # user entered a message
                 msg = sys.stdin.readline()
-                s.send(msg)
+                s.send(pad_message(msg))
                 sys.stdout.write(utils.CLIENT_MESSAGE_PREFIX); sys.stdout.flush() 
 
 if __name__ == "__main__":
