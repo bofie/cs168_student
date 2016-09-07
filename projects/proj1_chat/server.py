@@ -64,14 +64,14 @@ def chat_server():
                             continue
                         if args[0] == '/list':
                             for channel in channels:
-                                sock.sendall(channel + "\n")
+                                sock.sendall(pad_message(channel + "\n"))
                             continue
                         if args[0] == '/create':
                             if len(args) == 1:
-                                sock.sendall(utils.SERVER_CREATE_REQUIRES_ARGUMENT + "\n")
+                                sock.sendall(pad_message(utils.SERVER_CREATE_REQUIRES_ARGUMENT + "\n"))
                                 continue
                             if args[1] in channels:
-                                sock.sendall(utils.SERVER_CHANNEL_EXISTS.format(args[1]) + "\n")
+                                sock.sendall(pad_message(utils.SERVER_CHANNEL_EXISTS.format(args[1]) + "\n"))
                                 continue
                             channels[args[1]] = []
                             for channel in channels:
@@ -81,10 +81,10 @@ def chat_server():
                             continue
                         if args[0] == '/join':
                             if len(args) == 1:
-                                sock.sendall(utils.SERVER_JOIN_REQUIRES_ARGUMENT + "\n")
+                                sock.sendall(pad_message(utils.SERVER_JOIN_REQUIRES_ARGUMENT + "\n"))
                                 continue
                             if args[1] not in channels:
-                                sock.sendall(utils.SERVER_NO_CHANNEL_EXISTS.format(args[1]) + "\n")
+                                sock.sendall(pad_message(utils.SERVER_NO_CHANNEL_EXISTS.format(args[1]) + "\n"))
                                 continue
                             for channel in channels:
                                 if sock in channels[channel]:
@@ -93,14 +93,14 @@ def chat_server():
                             broadcast(server_socket, sock, args[1], utils.SERVER_CLIENT_JOINED_CHANNEL.format(sock_name[sock]) + "\n")
                             continue
                         if args[0][0] == '/':
-                            sock.sendall(utils.SERVER_INVALID_CONTROL_MESSAGE.format(args[0]) + "\n")
+                            sock.sendall(pad_message(utils.SERVER_INVALID_CONTROL_MESSAGE.format(args[0]) + "\n"))
                             continue
                         joinedChannel = False
                         for channel in channels:
                             if sock in channels[channel]:
                                 joinedChannel = True
                         if not joinedChannel:
-                            sock.sendall(utils.SERVER_CLIENT_NOT_IN_CHANNEL + "\n")
+                            sock.sendall(pad_message(utils.SERVER_CLIENT_NOT_IN_CHANNEL + "\n"))
                             continue
 
                         # there is something in the socket
@@ -127,7 +127,7 @@ def broadcast (server_socket, sock, channel, message):
         # send the message only to peer
         if socket != server_socket and socket != sock :
             try :
-                socket.sendall(message)
+                socket.sendall(pad_message(message))
             except :
                 # broken socket connection
                 socket.close()

@@ -37,6 +37,7 @@ def chat_client():
                     print "\n" + utils.CLIENT_SERVER_DISCONNECTED.format(host, port)
                     sys.exit()
                 else :
+                    data = data.rstrip(' ')
                     sys.stdout.write(utils.CLIENT_WIPE_ME)
                     sys.stdout.write("\r" + data)
                     sys.stdout.write(utils.CLIENT_MESSAGE_PREFIX); sys.stdout.flush()      
