@@ -9,7 +9,7 @@ RECV_BUFFER = 4096
 channels = {}
 
 def chat_server():
-    host = "localhost"
+    host = ""
     port = int(sys.argv[1])
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
