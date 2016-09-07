@@ -23,7 +23,7 @@ def chat_client():
         sys.exit()
      
     sys.stdout.write(utils.CLIENT_MESSAGE_PREFIX); sys.stdout.flush()
-    s.send(pad_message(name))
+    s.sendall(pad_message(name))
     while 1:
         socket_list = [sys.stdin, s]
          
@@ -43,7 +43,7 @@ def chat_client():
             
             else :
                 msg = sys.stdin.readline()
-                s.send(pad_message(msg))
+                s.sendall(pad_message(msg))
                 sys.stdout.write(utils.CLIENT_MESSAGE_PREFIX); sys.stdout.flush() 
 
 if __name__ == "__main__":
